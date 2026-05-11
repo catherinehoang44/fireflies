@@ -92,31 +92,31 @@ function initAudio(){
   mainReverb=new Tone.Reverb({decay:12,wet:0.8}).toDestination();
   bigDelay=new Tone.FeedbackDelay({delayTime:'4n.',feedback:0.4,wet:0.3}).connect(mainReverb);
 
-  // Hover: base 0.02, +40% = 0.028
-  hoverGain=new Tone.Gain(0.168).connect(mainReverb);
+  // Hover (quieter overall than earlier mix)
+  hoverGain=new Tone.Gain(0.132).connect(mainReverb);
   _hoverSynth=new Tone.Synth({oscillator:{type:'sine'},envelope:{attack:0.08,decay:0.6,sustain:0,release:1.2}}).connect(hoverGain);
 
-  // Click: base ~0.08, +10% = 0.088
-  clickGain=new Tone.Gain(0.528).connect(bigDelay);
+  // Click
+  clickGain=new Tone.Gain(0.42).connect(bigDelay);
   _clickSynth=new Tone.PolySynth(Tone.Synth,{oscillator:{type:'triangle'},envelope:{attack:0.08,decay:0.6,sustain:0.1,release:1.2}}).connect(clickGain);
 
-  // Close: base ~0.1, -20% = 0.08
-  closeGain=new Tone.Gain(0.48).connect(mainReverb);
+  // Popup close: intentionally softer than the other UI sounds
+  closeGain=new Tone.Gain(0.095).connect(mainReverb);
   _closeSynth=new Tone.Synth({oscillator:{type:'sine'},envelope:{attack:0.04,decay:0.6,sustain:0,release:1.2}}).connect(closeGain);
 
   // Enter
-  enterGain=new Tone.Gain(0.6).connect(mainReverb);
+  enterGain=new Tone.Gain(0.48).connect(mainReverb);
   _enterSynth=new Tone.PolySynth(Tone.Synth,{oscillator:{type:'sine'},envelope:{attack:0.1,decay:1,sustain:0.2,release:2}}).connect(enterGain);
 
-  // Speech tick: base ~0.03, -40% = 0.018
-  speechGain=new Tone.Gain(0.108).connect(mainReverb);
+  // Speech tick
+  speechGain=new Tone.Gain(0.085).connect(mainReverb);
   _speechSynth=new Tone.Synth({oscillator:{type:'sine'},envelope:{attack:0.005,decay:0.06,sustain:0,release:0.08}}).connect(speechGain);
 
-  // Search type: similar loudness to others ~0.03
-  typeGain=new Tone.Gain(0.18).connect(mainReverb);
+  // Search type
+  typeGain=new Tone.Gain(0.14).connect(mainReverb);
   _typeSynth=new Tone.NoiseSynth({noise:{type:'pink'},envelope:{attack:0.002,decay:0.06,sustain:0,release:0.04}}).connect(new Tone.Filter(3000,'bandpass')).connect(typeGain);
-  _typeScratch=new Tone.Synth({oscillator:{type:'sawtooth'},envelope:{attack:0.001,decay:0.03,sustain:0,release:0.02}}).connect(new Tone.Filter(2000,'highpass')).connect(new Tone.Gain(0.06)).connect(typeGain);
-  muteGain=new Tone.Gain(0.15).connect(mainReverb);
+  _typeScratch=new Tone.Synth({oscillator:{type:'sawtooth'},envelope:{attack:0.001,decay:0.03,sustain:0,release:0.02}}).connect(new Tone.Filter(2000,'highpass')).connect(new Tone.Gain(0.048)).connect(typeGain);
+  muteGain=new Tone.Gain(0.118).connect(mainReverb);
   _muteSynth=new Tone.Synth({oscillator:{type:'triangle'},envelope:{attack:0.02,decay:0.3,sustain:0,release:0.5}}).connect(muteGain);
 
   const AMBIENCE_SRC='assets/night-cricket-ambience.mp3';
