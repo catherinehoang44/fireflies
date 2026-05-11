@@ -85,7 +85,7 @@ let audioStarted=false,isMuted=false;
 let hoverGain,clickGain,closeGain,enterGain,speechGain,typeGain;
 let _hoverSynth,_clickSynth,_closeSynth,_enterSynth,_speechSynth,_typeSynth,_typeScratch,_muteSynth,muteGain;
 let mainReverb,bigDelay;
-let ambiencePlayer,ambienceGain,ambienceStarted=false;
+let ambienceAudio=null;
 
 function initAudio(){
   if(audioStarted)return;audioStarted=true;Tone.start();
@@ -119,17 +119,18 @@ function initAudio(){
   muteGain=new Tone.Gain(0.15).connect(mainReverb);
   _muteSynth=new Tone.Synth({oscillator:{type:'triangle'},envelope:{attack:0.02,decay:0.3,sustain:0,release:0.5}}).connect(muteGain);
 
-  ambienceGain=new Tone.Gain(0.045).toDestination();
-  ambiencePlayer=new Tone.Player({
-    url:'assets/night-cricket-ambience.mp3',
-    loop:true,
-    onload(){
-      if(!audioStarted||!ambiencePlayer||ambienceStarted)return;
-      ambienceStarted=true;
-      ambiencePlayer.mute=isMuted;
-      try{ambiencePlayer.start(0);}catch(e){}
-    },
-  }).connect(ambienceGain);
+  const AMBIENCE_SRC='assets/night-cricket-ambience.mp3';
+  if(!ambienceAudio){
+    ambienceAudio=new Audio(AMBIENCE_SRC);
+    ambienceAudio.loop=true;
+    ambienceAudio.preload='auto';
+    ambienceAudio.volume=0.18;
+    ambienceAudio.muted=isMuted;
+    const kick=()=>{if(!ambienceAudio||isMuted)return;ambienceAudio.play().catch(()=>{});};
+    kick();
+    ambienceAudio.addEventListener('canplay',kick,{once:true});
+    ambienceAudio.addEventListener('error',()=>{console.warn('Ambience failed to load',AMBIENCE_SRC,ambienceAudio&&ambienceAudio.error);});
+  }
 }
 
 function playHover(){if(!audioStarted||isMuted)return;const n=['E5','G5','B5','D6','F#5','A5','C6'];_hoverSynth.triggerAttackRelease(n[Math.floor(Math.random()*n.length)],'8n');}
@@ -140,7 +141,7 @@ function playSpeechTick(){if(!audioStarted||isMuted)return;const n=['C5','D5','E
 function playMuteToggle(muted){if(!audioStarted)return;if(muted){_muteSynth.triggerAttackRelease('G4','16n');}else{_muteSynth.triggerAttackRelease('C5','16n');}}
 function playType(){if(!audioStarted||isMuted)return;_typeSynth.triggerAttackRelease('32n');const notes=['A4','B4','C5','D5'];_typeScratch.triggerAttackRelease(notes[Math.floor(Math.random()*notes.length)],'64n');}
 
-document.getElementById('mute-btn').addEventListener('click',()=>{isMuted=!isMuted;document.getElementById('mute-icon').src=isMuted?SOUND_OFF_URL:SOUND_ON_URL;if(ambiencePlayer)ambiencePlayer.mute=isMuted;playMuteToggle(isMuted);});
+document.getElementById('mute-btn').addEventListener('click',()=>{isMuted=!isMuted;document.getElementById('mute-icon').src=isMuted?SOUND_OFF_URL:SOUND_ON_URL;if(ambienceAudio){ambienceAudio.muted=isMuted;if(!isMuted)ambienceAudio.play().catch(()=>{});}playMuteToggle(isMuted);});
 
 let entered=false,introTransitionProgress=0,hoveredFirefly=null,searchQuery='',dragDist=0;
 const fireflyNames=['Kiara','Minahil','Samukytha','Zahin','Charlotte','Jackie','Danny','Sophia','Joy','Claudia','Jessica','Nancy','Diem'];
