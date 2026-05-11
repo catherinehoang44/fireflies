@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Embed the girl PNG as a data URL in firefly-girl.html (required for file:// and reliable Three.js textures)."""
+"""Embed the girl PNG as a data URL in index.html (required for file:// and reliable Three.js textures)."""
 import base64
 import re
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-HTML = ROOT / "firefly-girl.html"
+HTML = ROOT / "index.html"
 
 
 def main():
@@ -24,7 +24,7 @@ def main():
     text = HTML.read_text(encoding="utf-8")
     new_text, n = re.subn(r'const GIRL_IMG_URL="[^"]*";', line, text, count=1)
     if n != 1:
-        sys.exit("Could not find const GIRL_IMG_URL=... in firefly-girl.html")
+        sys.exit("Could not find const GIRL_IMG_URL=... in index.html")
     HTML.write_text(new_text, encoding="utf-8")
     print(f"Embedded {img} ({len(data_url)} chars) into {HTML.name}")
 

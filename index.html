@@ -118,12 +118,15 @@ function initAudio(){
   _typeScratch=new Tone.Synth({oscillator:{type:'sawtooth'},envelope:{attack:0.001,decay:0.03,sustain:0,release:0.02}}).connect(new Tone.Filter(2000,'highpass')).connect(new Tone.Gain(0.06)).connect(typeGain);
   muteGain=new Tone.Gain(0.15).connect(mainReverb);
   _muteSynth=new Tone.Synth({oscillator:{type:'triangle'},envelope:{attack:0.02,decay:0.3,sustain:0,release:0.5}}).connect(muteGain);
+}
 
+function startAmbienceLoop(){
+  if(ambienceStarted||!audioStarted)return;
+  ambienceStarted=true;
   ambienceGain=new Tone.Gain(0.045).toDestination();
   ambiencePlayer=new Tone.Player({url:'assets/night-cricket-ambience.mp3',loop:true,autostart:false}).connect(ambienceGain);
   Tone.loaded().then(()=>{
-    if(!audioStarted||!ambiencePlayer||ambienceStarted)return;
-    ambienceStarted=true;
+    if(!ambiencePlayer)return;
     ambiencePlayer.mute=isMuted;
     try{ambiencePlayer.start(0);}catch(e){}
   });
@@ -242,7 +245,7 @@ renderer.domElement.addEventListener('touchstart',(e)=>{if(!entered||e.touches.l
 renderer.domElement.addEventListener('touchmove',(e)=>{if(!entered)return;e.preventDefault();if(e.touches.length===1){const dx=e.touches[0].clientX-touchX,dy=e.touches[0].clientY-touchY;dragDist+=Math.abs(dx)+Math.abs(dy);targetAngle+=dx*0.005;targetPitch+=dy*0.005;targetPitch=Math.max(-0.8,Math.min(1.2,targetPitch));touchX=e.touches[0].clientX;touchY=e.touches[0].clientY;}},{passive:false});
 renderer.domElement.addEventListener('click',()=>{if(!entered)return;if(dragDist>8)return;if(hoveredFirefly){openPopup(hoveredFirefly);playClick();return;}if(girlMeshRef){raycaster.setFromCamera(mouse,camera);const gi=raycaster.intersectObject(girlMeshRef,false);if(gi.length>0)showSpeechBubble();}});
 
-document.getElementById('enter-btn').addEventListener('click',()=>{entered=true;document.getElementById('intro').classList.add('hidden');document.body.classList.add('scene-active');initAudio();playEnter();setTimeout(()=>{document.getElementById('bottom-bar').classList.add('visible');},3500);});
+document.getElementById('enter-btn').addEventListener('click',()=>{entered=true;document.getElementById('intro').classList.add('hidden');document.body.classList.add('scene-active');initAudio();playEnter();startAmbienceLoop();setTimeout(()=>{document.getElementById('bottom-bar').classList.add('visible');},3500);});
 document.getElementById('search-input').addEventListener('input',(e)=>{searchQuery=e.target.value.toLowerCase().trim();playType();for(const fly of fireflies)fly.userData.searchMatch=!searchQuery||fly.userData.name.toLowerCase().includes(searchQuery);});
 
 const popupOverlay=document.getElementById('popup-overlay');
